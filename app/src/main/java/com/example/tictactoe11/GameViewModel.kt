@@ -15,11 +15,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     var state by mutableStateOf(
         GameState(
-            boardItems = mutableMapOf(
-                1 to BoardCellValue.NONE, 2 to BoardCellValue.NONE, 3 to BoardCellValue.NONE,
-                4 to BoardCellValue.NONE, 5 to BoardCellValue.NONE, 6 to BoardCellValue.NONE,
-                7 to BoardCellValue.NONE, 8 to BoardCellValue.NONE, 9 to BoardCellValue.NONE
-            )
+            boardItems = createEmptyBoard()
         )
     )
 
@@ -66,11 +62,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             playerCrossCount = 0,
             drawCount = 0,
             showGameModeSelection = false,
-            boardItems = mutableMapOf(
-                1 to BoardCellValue.NONE, 2 to BoardCellValue.NONE, 3 to BoardCellValue.NONE,
-                4 to BoardCellValue.NONE, 5 to BoardCellValue.NONE, 6 to BoardCellValue.NONE,
-                7 to BoardCellValue.NONE, 8 to BoardCellValue.NONE, 9 to BoardCellValue.NONE
-            ),
+            boardItems = createEmptyBoard(),
             currentTurn = BoardCellValue.CIRCLE,
             hintText = if (gameMode == GameMode.SINGLE_PLAYER) "Your turn (O)" else "Player 'O' turn",
             hasWon = false,
@@ -206,33 +198,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun playAgain() {
-        if (state.gameMode == GameMode.TWO_PLAYER) {
-            state = state.copy(
-                hintText = "Player 'O' turn",
-                currentTurn = BoardCellValue.CIRCLE,
-                boardItems = mutableMapOf(
-                    1 to BoardCellValue.NONE, 2 to BoardCellValue.NONE, 3 to BoardCellValue.NONE,
-                    4 to BoardCellValue.NONE, 5 to BoardCellValue.NONE, 6 to BoardCellValue.NONE,
-                    7 to BoardCellValue.NONE, 8 to BoardCellValue.NONE, 9 to BoardCellValue.NONE
-                ),
-                victoryType = VictoryType.NONE,
-                hasWon = false,
-                isAIThinking = false
-            )
-        } else {
-            state = state.copy(
-                hintText = "Your turn (O)",
-                currentTurn = BoardCellValue.CIRCLE,
-                boardItems = mutableMapOf(
-                    1 to BoardCellValue.NONE, 2 to BoardCellValue.NONE, 3 to BoardCellValue.NONE,
-                    4 to BoardCellValue.NONE, 5 to BoardCellValue.NONE, 6 to BoardCellValue.NONE,
-                    7 to BoardCellValue.NONE, 8 to BoardCellValue.NONE, 9 to BoardCellValue.NONE
-                ),
-                victoryType = VictoryType.NONE,
-                hasWon = false,
-                isAIThinking = false
-            )
-        }
+        state = state.copy(
+            hintText = if (state.gameMode == GameMode.TWO_PLAYER) "Player 'O' turn" else "Your turn (O)",
+            currentTurn = BoardCellValue.CIRCLE,
+            boardItems = createEmptyBoard(),
+            victoryType = VictoryType.NONE,
+            hasWon = false,
+            isAIThinking = false
+        )
     }
 
     private fun exitCurrentGame() {
@@ -240,14 +213,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             showGameModeSelection = true,
             hintText = "Player 'O' turn",
             currentTurn = BoardCellValue.CIRCLE,
-            boardItems = mutableMapOf(
-                1 to BoardCellValue.NONE, 2 to BoardCellValue.NONE, 3 to BoardCellValue.NONE,
-                4 to BoardCellValue.NONE, 5 to BoardCellValue.NONE, 6 to BoardCellValue.NONE,
-                7 to BoardCellValue.NONE, 8 to BoardCellValue.NONE, 9 to BoardCellValue.NONE
-            ),
+            boardItems = createEmptyBoard(),
             victoryType = VictoryType.NONE,
             hasWon = false,
             isAIThinking = false
         )
+    }
+
+    private fun createEmptyBoard(): MutableMap<Int, BoardCellValue> {
+        return (1..9).associateWith { BoardCellValue.NONE }.toMutableMap()
     }
 }

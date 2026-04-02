@@ -1,15 +1,18 @@
 package com.example.tictactoe11
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.UserAction
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class GameViewModel : ViewModel() {
+class GameViewModel(application: Application) : AndroidViewModel(application) {
+    private val themePreferences = ThemePreferences(application)
+
     var state by mutableStateOf(
         GameState(
             boardItems = mutableMapOf(
@@ -19,6 +22,14 @@ class GameViewModel : ViewModel() {
             )
         )
     )
+
+    init {
+        viewModelScope.launch {
+            themePreferences.themeStyleFlow.collect { themeStyle ->
+                state = state.copy(selectedTheme = themeStyle)
+            }
+        }
+    }
 
     fun onAction(action: UserAction) {
         when (action) {
@@ -38,8 +49,11 @@ class GameViewModel : ViewModel() {
                 exitCurrentGame()
             }
 
-            is UserAction.UpdateDarkMode -> {
-                state = state.copy(darkThemeEnabled = action.enabled)
+            is UserAction.UpdateThemeStyle -> {
+                state = state.copy(selectedTheme = action.themeStyle)
+                viewModelScope.launch {
+                    themePreferences.setThemeStyle(action.themeStyle)
+                }
             }
         }
     }

@@ -14,8 +14,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel: GameViewModel = viewModel()
-            val darkTheme = viewModel.state.darkThemeEnabled
-            TicTacToe11Theme(darkTheme = darkTheme, dynamicColor = false) {
+            val themeStyle = viewModel.state.selectedTheme
+            TicTacToe11Theme(themeStyle = themeStyle) {
                 GameScreen(viewModel = viewModel)
             }
         }

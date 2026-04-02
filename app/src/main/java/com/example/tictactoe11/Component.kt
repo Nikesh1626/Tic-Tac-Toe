@@ -94,6 +94,8 @@ fun Circle() {
 
 @Composable
 fun WinningLine(winningLine: VictoryType) {
+    val colors = LocalTicTacToeColors.current
+
     // We use a state to track the animation progress.
     var animationPlayed by remember { mutableStateOf(false) }
 
@@ -113,7 +115,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.HORIZONTAL1 -> {
                 val endX = size.width * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = 0f, y = size.height * 1 / 6),
                     end = Offset(x = endX, y = size.height * 1 / 6),
                     strokeWidth = 10f,
@@ -124,7 +126,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.HORIZONTAL2 -> {
                 val endX = size.width * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = 0f, y = size.height * 3 / 6),
                     end = Offset(x = endX, y = size.height * 3 / 6),
                     strokeWidth = 10f,
@@ -135,7 +137,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.HORIZONTAL3 -> {
                 val endX = size.width * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = 0f, y = size.height * 5 / 6),
                     end = Offset(x = endX, y = size.height * 5 / 6),
                     strokeWidth = 10f,
@@ -146,7 +148,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.VERTICAL1 -> {
                 val endY = size.height * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = size.width * 1 / 6, y = 0f),
                     end = Offset(x = size.width * 1 / 6, y = endY),
                     strokeWidth = 10f,
@@ -157,7 +159,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.VERTICAL2 -> {
                 val endY = size.height * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = size.width * 3 / 6, y = 0f),
                     end = Offset(x = size.width * 3 / 6, y = endY),
                     strokeWidth = 10f,
@@ -168,7 +170,7 @@ fun WinningLine(winningLine: VictoryType) {
             VictoryType.VERTICAL3 -> {
                 val endY = size.height * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = size.width * 5 / 6, y = 0f),
                     end = Offset(x = size.width * 5 / 6, y = endY),
                     strokeWidth = 10f,
@@ -180,7 +182,7 @@ fun WinningLine(winningLine: VictoryType) {
                 val endX = size.width * animationProgress
                 val endY = size.height * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = 0f, y = 0f),
                     end = Offset(x = endX, y = endY),
                     strokeWidth = 10f,
@@ -192,7 +194,7 @@ fun WinningLine(winningLine: VictoryType) {
                 val endX = size.width * (1 - animationProgress)
                 val endY = size.height * animationProgress
                 drawLine(
-                    color = Color.Red,
+                    color = colors.winningLineColor,
                     start = Offset(x = size.width, y = 0f),
                     end = Offset(x = endX, y = endY),
                     strokeWidth = 10f,

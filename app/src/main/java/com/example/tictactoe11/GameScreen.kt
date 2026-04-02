@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,8 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,8 +63,10 @@ fun GameScreen(
     val state = viewModel.state
     val context = LocalContext.current
     val colors = LocalTicTacToeColors.current
+    val actionButtonTextColor = if (state.selectedTheme == ThemeStyle.VOLTAGE_BRUTALIST) Color.Black else Color.White
     var showExitAppDialog by rememberSaveable { mutableStateOf(false) }
     var showExitCurrentGameDialog by rememberSaveable { mutableStateOf(false) }
+    var showThemeSheet by rememberSaveable { mutableStateOf(false) }
 
     val isDraw = !state.hasWon && state.boardItems.values.all { it != BoardCellValue.NONE }
     val isActiveGameplay = !state.showGameModeSelection && !state.hasWon && !isDraw
@@ -81,27 +80,79 @@ fun GameScreen(
     }
 
     if (state.showGameModeSelection) {
-        GameModeSelectionScreen(viewModel = viewModel)
+        GameModeSelectionScreen(
+            viewModel = viewModel,
+            onChangeThemeClick = { showThemeSheet = true }
+        )
     } else {
         TicTacToeGameScreen(viewModel = viewModel)
     }
 
-    if (showExitAppDialog) {
-        AlertDialog(
-            onDismissRequest = { showExitAppDialog = false },
-            title = { Text("Exit App") },
-            text = { Text("Do you want to exit the app?") },
-            confirmButton = {
-                Button(onClick = { (context as? Activity)?.finish() }) {
-                    Text("Exit")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showExitAppDialog = false }) {
-                    Text("Cancel")
-                }
+    if (showThemeSheet) {
+        ThemeSelectionSheet(
+            currentTheme = state.selectedTheme,
+            onDismiss = { showThemeSheet = false },
+            onThemeSelected = {
+                viewModel.onAction(UserAction.UpdateThemeStyle(it))
+                showThemeSheet = false
             }
         )
+    }
+
+    if (showExitAppDialog) {
+        ModalBottomSheet(
+            onDismissRequest = { showExitAppDialog = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            dragHandle = null,
+            containerColor = colors.grayBackground
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Text(
+                    text = "Exit App",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.textColor
+                )
+                Text(
+                    text = "Do you want to exit the app?",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = colors.textColor
+                )
+                Button(
+                    onClick = { (context as? Activity)?.finish() },
+                    modifier = Modifier
+                        .fillMaxWidth(0.86f)
+                        .height(58.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.blueCustom,
+                        contentColor = actionButtonTextColor
+                    )
+                ) {
+                    Text("Exit", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Button(
+                    onClick = { showExitAppDialog = false },
+                    modifier = Modifier
+                        .fillMaxWidth(0.86f)
+                        .height(58.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.destructiveButtonColor,
+                        contentColor = actionButtonTextColor
+                    )
+                ) {
+                    Text("Cancel", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
     }
 
     if (showExitCurrentGameDialog) {
@@ -142,7 +193,7 @@ fun GameScreen(
                     shape = RoundedCornerShape(22.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.blueCustom,
-                        contentColor = Color.White
+                        contentColor = actionButtonTextColor
                     )
                 ) {
                     Text("Exit", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
@@ -154,8 +205,8 @@ fun GameScreen(
                         .height(58.dp),
                     shape = RoundedCornerShape(22.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFD32F2F),
-                        contentColor = Color.White
+                        containerColor = colors.destructiveButtonColor,
+                        contentColor = actionButtonTextColor
                     )
                 ) {
                     Text("Cancel", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
@@ -199,7 +250,7 @@ fun GameScreen(
                     shape = RoundedCornerShape(22.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.blueCustom,
-                        contentColor = Color.White
+                        contentColor = actionButtonTextColor
                     )
                 ) {
                     Text("Play Again", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
@@ -211,8 +262,8 @@ fun GameScreen(
                         .height(58.dp),
                     shape = RoundedCornerShape(22.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFD32F2F),
-                        contentColor = Color.White
+                        containerColor = colors.destructiveButtonColor,
+                        contentColor = actionButtonTextColor
                     )
                 ) {
                     Text("Exit", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
@@ -222,12 +273,118 @@ fun GameScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeSelectionSheet(
+    currentTheme: ThemeStyle,
+    onDismiss: () -> Unit,
+    onThemeSelected: (ThemeStyle) -> Unit
+) {
+    val colors = LocalTicTacToeColors.current
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        dragHandle = null,
+        containerColor = colors.sheetSurface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = "Change Theme",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = colors.textColor
+            )
+            Text(
+                text = "Choose the look you want for the game.",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = colors.textSecondaryColor
+            )
+
+            ThemeStyle.entries.forEach { themeStyle ->
+                val selected = themeStyle == currentTheme
+                Card(
+                    onClick = {
+                        onThemeSelected(themeStyle)
+                    },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (selected) colors.blueCustom.copy(alpha = 0.14f) else colors.cardSurface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = themeStyle.displayName,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = colors.textColor
+                            )
+                            if (selected) {
+                                Text(
+                                    text = "Selected",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = colors.blueCustom
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = when (themeStyle) {
+                                ThemeStyle.CURRENT_DEFAULT -> "Keeps the current visual style of the game."
+                                ThemeStyle.NEON_NEBULA -> "A neon, glowing look with vivid contrast."
+                                ThemeStyle.SOFT_TACTILE -> "Soft surfaces with calm tactile shadows."
+                                ThemeStyle.VOLTAGE_BRUTALIST -> "High-contrast, bold, and aggressive."
+                            },
+                            fontSize = 14.sp,
+                            color = colors.textSecondaryColor
+                        )
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            val previewColors = when (themeStyle) {
+                                ThemeStyle.CURRENT_DEFAULT -> listOf(colors.grayBackground, colors.blueCustom, colors.aqua)
+                                ThemeStyle.NEON_NEBULA -> listOf(Color(0xFF0F1C3A), Color(0xFF00D9FF), Color(0xFFFF006E))
+                                ThemeStyle.SOFT_TACTILE -> listOf(Color(0xFFF9F9FB), Color(0xFF306465), Color(0xFFA39A64))
+                                ThemeStyle.VOLTAGE_BRUTALIST -> listOf(Color.Black, Color.Yellow, Color.Magenta)
+                            }
+                            previewColors.forEach { previewColor ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(18.dp)
+                                        .background(previewColor, RoundedCornerShape(6.dp))
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun GameModeSelectionScreen(
-    viewModel: GameViewModel
+    viewModel: GameViewModel,
+    onChangeThemeClick: () -> Unit
 ) {
-    val state = viewModel.state
     val colors = LocalTicTacToeColors.current
+    val actionButtonTextColor = if (viewModel.state.selectedTheme == ThemeStyle.VOLTAGE_BRUTALIST) Color.Black else Color.White
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -248,29 +405,6 @@ fun GameModeSelectionScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Dark Mode",
-                    fontSize = if (compactLayout) 15.sp else 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colors.textColor
-                )
-                Switch(
-                    checked = state.darkThemeEnabled,
-                    onCheckedChange = { enabled ->
-                        viewModel.onAction(UserAction.UpdateDarkMode(enabled))
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = colors.blueCustom,
-                        checkedTrackColor = colors.blueCustom.copy(alpha = 0.5f)
-                    )
-                )
-            }
-
             Text(
                 text = "Tic Tac Toe",
                 fontSize = titleSize,
@@ -297,7 +431,7 @@ fun GameModeSelectionScreen(
                     .padding(vertical = buttonHeightPadding),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colors.blueCustom,
-                    contentColor = Color.White
+                    contentColor = actionButtonTextColor
                 )
             ) {
                 Text(
@@ -325,8 +459,8 @@ fun GameModeSelectionScreen(
                     .fillMaxWidth(if (compactLayout) 0.9f else 0.85f)
                     .padding(vertical = if (compactLayout) 6.dp else 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),
-                    contentColor = Color.White
+                    containerColor = colors.easyButtonColor,
+                    contentColor = actionButtonTextColor
                 )
             ) {
                 Text(
@@ -347,8 +481,8 @@ fun GameModeSelectionScreen(
                     .fillMaxWidth(if (compactLayout) 0.9f else 0.85f)
                     .padding(vertical = if (compactLayout) 6.dp else 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFA500),
-                    contentColor = Color.White
+                    containerColor = colors.mediumButtonColor,
+                    contentColor = actionButtonTextColor
                 )
             ) {
                 Text(
@@ -369,8 +503,8 @@ fun GameModeSelectionScreen(
                     .fillMaxWidth(if (compactLayout) 0.9f else 0.85f)
                     .padding(vertical = if (compactLayout) 6.dp else 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF5252),
-                    contentColor = Color.White
+                    containerColor = colors.hardButtonColor,
+                    contentColor = actionButtonTextColor
                 )
             ) {
                 Text(
@@ -381,6 +515,21 @@ fun GameModeSelectionScreen(
                 )
             }
         }
+
+        Text(
+            text = "Change theme",
+            fontSize = if (compactLayout) 16.sp else 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colors.blueCustom,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = if (compactLayout) 16.dp else 24.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null,
+                    onClick = onChangeThemeClick
+                )
+        )
     }
 }
 
@@ -460,61 +609,61 @@ private fun TicTacToeGameScreen(
             ) {
                 Box(
                     modifier = Modifier
-                    .size(boardSize)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(colors.grayBackground)
-                    .padding(boardInnerPadding)
-            ) {
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Fixed(3)
+                        .size(boardSize)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(colors.grayBackground)
+                        .padding(boardInnerPadding)
                 ) {
-                    state.boardItems.forEach { (cellNo, boardCellValue) ->
-                        item {
-                            val view = LocalView.current
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .aspectRatio(1f)
-                                    .padding(cellPadding)
-                                    .clickable(
-                                        interactionSource = MutableInteractionSource(),
-                                        indication = null,
-                                        enabled = !state.isAIThinking && !state.hasWon
-                                    ) {
-                                        view.performHapticFeedback(
-                                            HapticFeedbackConstants.VIRTUAL_KEY,
-                                            HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-                                        )
-                                        viewModel.onAction(UserAction.BoardTapped(cellNo))
-                                    },
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                AnimatedVisibility(
-                                    visible = state.boardItems[cellNo] != BoardCellValue.NONE,
-                                    enter = scaleIn(animationSpec = tween(durationMillis = 220))
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(3)
+                    ) {
+                        state.boardItems.forEach { (cellNo, boardCellValue) ->
+                            item {
+                                val view = LocalView.current
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .aspectRatio(1f)
+                                        .padding(cellPadding)
+                                        .clickable(
+                                            interactionSource = MutableInteractionSource(),
+                                            indication = null,
+                                            enabled = !state.isAIThinking && !state.hasWon
+                                        ) {
+                                            view.performHapticFeedback(
+                                                HapticFeedbackConstants.VIRTUAL_KEY,
+                                                HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                                            )
+                                            viewModel.onAction(UserAction.BoardTapped(cellNo))
+                                        },
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
                                 ) {
-                                    if (boardCellValue == BoardCellValue.CIRCLE) {
-                                        Circle()
-                                    } else if (boardCellValue == BoardCellValue.CROSS) {
-                                        Cross()
+                                    AnimatedVisibility(
+                                        visible = state.boardItems[cellNo] != BoardCellValue.NONE,
+                                        enter = scaleIn(animationSpec = tween(durationMillis = 220))
+                                    ) {
+                                        if (boardCellValue == BoardCellValue.CIRCLE) {
+                                            Circle()
+                                        } else if (boardCellValue == BoardCellValue.CROSS) {
+                                            Cross()
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                BoardLines()
+                    BoardLines()
 
-                if (state.hasWon) {
-                    WinningLine(winningLine = state.victoryType)
+                    if (state.hasWon) {
+                        WinningLine(winningLine = state.victoryType)
+                    }
                 }
-            }
             }
 
             Text(

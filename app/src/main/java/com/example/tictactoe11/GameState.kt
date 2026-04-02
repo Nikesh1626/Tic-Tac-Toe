@@ -13,7 +13,7 @@ data class GameState(
     val aiDifficulty: AIDifficulty = AIDifficulty.MEDIUM,
     val isAIThinking: Boolean = false,
     val showGameModeSelection: Boolean = true,
-    val darkThemeEnabled: Boolean = false
+    val selectedTheme: ThemeStyle = ThemeStyle.CURRENT_DEFAULT
 )
 
 enum class BoardCellValue {

@@ -1,8 +1,8 @@
 package com.example.tictactoe
 
-import com.example.tictactoe11.GameMode
-import com.example.tictactoe11.AIDifficulty
-import com.example.tictactoe11.ThemeStyle
+import com.example.tictactoe.GameMode
+import com.example.tictactoe.AIDifficulty
+import com.example.tictactoe.ThemeStyle
 
 sealed class UserAction {
     object PlayAgainButtonClicked : UserAction()

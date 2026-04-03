@@ -1,4 +1,4 @@
-package com.example.tictactoe11
+package com.example.tictactoe
 
 data class GameState(
     val playerCircleCount: Int = 0,

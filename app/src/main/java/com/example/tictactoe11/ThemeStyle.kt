@@ -1,4 +1,4 @@
-package com.example.tictactoe11
+package com.example.tictactoe
 
 enum class ThemeStyle(val displayName: String) {
     CURRENT_DEFAULT("Current"),

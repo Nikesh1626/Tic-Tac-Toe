@@ -1,4 +1,4 @@
-package com.example.tictactoe11
+package com.example.tictactoe
 
 import android.app.Activity
 import android.view.HapticFeedbackConstants
@@ -33,9 +33,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -53,7 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tictactoe.UserAction
-import com.example.tictactoe11.ui.theme.LocalTicTacToeColors
+import com.example.tictactoe.ui.theme.LocalTicTacToeColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,16 +69,26 @@ fun GameScreen(
     var showExitAppDialog by rememberSaveable { mutableStateOf(false) }
     var showExitCurrentGameDialog by rememberSaveable { mutableStateOf(false) }
     var showThemeSheet by rememberSaveable { mutableStateOf(false) }
+    var showGameOverSheet by rememberSaveable { mutableStateOf(false) }
 
     val isDraw = !state.hasWon && state.boardItems.values.all { it != BoardCellValue.NONE }
     val isActiveGameplay = !state.showGameModeSelection && !state.hasWon && !isDraw
+    val shouldShowGameOver = !state.showGameModeSelection && (state.hasWon || isDraw)
 
-    BackHandler(enabled = state.showGameModeSelection) {
+    LaunchedEffect(shouldShowGameOver) {
+        showGameOverSheet = shouldShowGameOver
+    }
+
+    BackHandler(enabled = state.showGameModeSelection && !showExitAppDialog) {
         showExitAppDialog = true
     }
 
-    BackHandler(enabled = isActiveGameplay) {
+    BackHandler(enabled = isActiveGameplay && !showExitCurrentGameDialog) {
         showExitCurrentGameDialog = true
+    }
+
+    BackHandler(enabled = shouldShowGameOver && !showGameOverSheet) {
+        showGameOverSheet = true
     }
 
     if (state.showGameModeSelection) {
@@ -215,12 +227,15 @@ fun GameScreen(
         }
     }
 
-    if (!state.showGameModeSelection && (state.hasWon || isDraw)) {
+    if (shouldShowGameOver && showGameOverSheet) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
             onDismissRequest = { },
             sheetState = sheetState,
             dragHandle = null,
+            properties = ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false
+            ),
             containerColor = colors.grayBackground
         ) {
             Column(
@@ -243,7 +258,10 @@ fun GameScreen(
                     color = colors.textColor
                 )
                 Button(
-                    onClick = { viewModel.onAction(UserAction.PlayAgainButtonClicked) },
+                    onClick = {
+                        showGameOverSheet = false
+                        viewModel.onAction(UserAction.PlayAgainButtonClicked)
+                    },
                     modifier = Modifier
                         .fillMaxWidth(0.86f)
                         .height(58.dp),
@@ -256,7 +274,10 @@ fun GameScreen(
                     Text("Play Again", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Button(
-                    onClick = { viewModel.onAction(UserAction.ExitCurrentGame) },
+                    onClick = {
+                        showGameOverSheet = false
+                        viewModel.onAction(UserAction.ExitCurrentGame)
+                    },
                     modifier = Modifier
                         .fillMaxWidth(0.86f)
                         .height(58.dp),

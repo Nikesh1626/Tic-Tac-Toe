@@ -1,4 +1,4 @@
-package com.example.tictactoe11
+package com.example.tictactoe
 
 import org.junit.Test
 

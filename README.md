@@ -4,6 +4,7 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-4285F4?logo=jetpackcompose&logoColor=white)
 ![Material 3](https://img.shields.io/badge/Material%203-Design%20System-757575?logo=materialdesign&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-API%2024%2B-3DDC84?logo=android&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 TIC TAC TOE is a modern Android Tic-Tac-Toe application built with Jetpack Compose, Material 3, and an MVVM architecture. It supports local two-player matches, single-player play against an AI opponent, and persistent theme selection for a polished mobile experience.
 
@@ -189,4 +190,4 @@ The repository includes the standard Android unit and instrumentation test scaff
 
 ## License
 
-Add a license file before publishing this project publicly.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

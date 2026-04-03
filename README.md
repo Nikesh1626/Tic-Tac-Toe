@@ -105,23 +105,23 @@ The selected theme is stored locally using DataStore Preferences and restored au
 
 ### 1. Home Screen
 
-![1. Home Screen](app/docs/Screenshots/1.%20Home%20Screen.jpeg)
+<img src="app/docs/Screenshots/1.%20Home%20Screen.jpeg" alt="1. Home Screen" width="300" />
 
 ### 2. Gameplay Screen Theme 1
 
-![2. Gameplay Screen Theme 1](app/docs/Screenshots/2.%20Gameplay%20Screen%20Theme%201.jpeg)
+<img src="app/docs/Screenshots/2.%20Gameplay%20Screen%20Theme%201.jpeg" alt="2. Gameplay Screen Theme 1" width="300" />
 
 ### 3. Theme Selection Sheet
 
-![3. Theme Selection Sheet](app/docs/Screenshots/3.%20Theme%20Selection%20Sheet.jpeg)
+<img src="app/docs/Screenshots/3.%20Theme%20Selection%20Sheet.jpeg" alt="3. Theme Selection Sheet" width="300" />
 
 ### 4. Gameplay Screen Theme 2
 
-![4. Gameplay Screen Theme 2](app/docs/Screenshots/4.%20Gameplay%20Screen%20Theme%202.jpeg)
+<img src="app/docs/Screenshots/4.%20Gameplay%20Screen%20Theme%202.jpeg" alt="4. Gameplay Screen Theme 2" width="300" />
 
 ### 5. Gameplay Screen with AI
 
-![5. Gameplay Screen with AI](app/docs/Screenshots/5.%20Gameplay%20Screen%20with%20AI.jpeg)
+<img src="app/docs/Screenshots/5.%20Gameplay%20Screen%20with%20AI.jpeg" alt="5. Gameplay Screen with AI" width="300" />
 
 ## Architecture
 
